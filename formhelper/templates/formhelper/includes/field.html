@@ -1,0 +1,6 @@
+{% load formhelper %}
+<div class="field {{ field|class_names }}">
+  <label for="id_{{ field.name }}">{{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}</label>
+  {{ field.errors }}
+  {{ field }}
+</div>

@@ -1,0 +1,6 @@
+{% load formhelper %}
+<div class="form-row">
+  {% for field in fields %}
+  {% form_field form field %}
+  {% endfor %}
+</div>
