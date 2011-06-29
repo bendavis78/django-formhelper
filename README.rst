@@ -12,7 +12,7 @@ Usage
 =============
 After installing django-formhelper, add ``formhelper`` to your ``INSTALLED_APPS`` in your ``settings.py``.
 
-In your template, you need to load ``formhelper``:
+In your template, you need to load ``formhelper``::
 
     ...
     {% load formhelper %}
@@ -25,15 +25,15 @@ Template Tags
 ----------
 form_field
 ----------
-Render out a single form field. Uses the template ``formhelper/includes/field.html``.  Example usage:
+Render out a single form field. Uses the template ``formhelper/includes/field.html``.  Example usage::
 
     {% form_field contact_form first_name %}
  
-If your form is in your view's context as the variable "form", you can omit the first argument:
+If your form is in your view's context as the variable "form", you can omit the first argument::
 
     {% form_field first_name %}
 
-Otherwise, you can use the "with" templatetag
+Otherwise, you can use the "with" templatetag::
 
     {% with my_form as form %}
     ...
@@ -45,7 +45,7 @@ Otherwise, you can use the "with" templatetag
 --------
 form_row
 --------
-Like form_field, but renders out multiple fields.  Uses the template ``formhelper/includes/form_row.html``. Example usage:
+Like form_field, but renders out multiple fields.  Uses the template ``formhelper/includes/form_row.html``. Example usage::
 
     {% form_row first_name middle_name last_name %}
 
@@ -53,11 +53,11 @@ Like form_field, but renders out multiple fields.  Uses the template ``formhelpe
 ----------
 error_list
 ----------
-Render out the form error list as an unordered list.  Uses the template ``formhelper/includes/error_list.html``  Example usage:
+Render out the form error list as an unordered list.  Uses the template ``formhelper/includes/error_list.html``  Example usage::
 
     {% error_list %}
  
-You may also render out only non-field errors or only field-specific errors:
+You may also render out only non-field errors or only field-specific errors::
 
     {% error_list non_field %}
     ... or ...
@@ -68,15 +68,15 @@ class_names
 -----------
 Renders a list of useful class names for a field that includes the field name, the widget type, whether or not the field is requried, and whether or not the field has an error.
 
-For example, if your field was a textinput named "first_name" and it was required:
+For example, if your field was a textinput named "first_name" and it was required::
     
     <div class="{% field|class_names %}">
 
-would result in:
+would result in::
 
     <div class="first_name text-input required">
 
-if the field has an error:
+if the field has an error::
 
     <div class="first_name text-input required error">
 
