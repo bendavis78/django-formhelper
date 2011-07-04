@@ -11,10 +11,10 @@ all_cap_re = re.compile('([a-z0-9])([A-Z])')
 def field_error(field):
     if field.errors:
         err = field.errors[0]
-        if err == unicode(field.field.default_error_messages.get('required')):
+        if err == unicode(field.field.error_messages.get('required')):
             err = '%s is required' % field.label
         else:
-            err = '%s: ' % field.label
+            err = '%s: %s' % (field.label, err)
         return err
     return ''
 
