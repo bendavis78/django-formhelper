@@ -82,6 +82,16 @@ def form_row(parser, token):
 def error_list(form, only=''):
     return {'form':form, 'only':only}
 
+@register.filter
+def field_value(field):
+    value = field.value()
+    if value is None:
+        return None
+    try:
+        return field.field.coerce(value)
+    except TypeError:
+        return None
+
 def _get_field(field, form, context):
     try:
         field = template.Variable(field).resolve(context)
@@ -94,3 +104,4 @@ def _get_field(field, form, context):
 def pyclass_to_cssclass(name):
     s1 = first_cap_re.sub(r'\1-\2', name)
     return all_cap_re.sub(r'\1-\2', s1).lower()
+
