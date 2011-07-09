@@ -1,0 +1,39 @@
+<div class="formset">
+  {{ formset.management_form }}
+  {% for form in formset %}
+  <div class="dynamic-form {{ formset.prefix }}{% if form.empty_form %} empty-form{% endif %}{% if forloop.first %} first{% endif %}" id="{{ formset.prefix }}-{{ forloop.counter0 }}">
+    <fieldset>
+      <legend>
+        <span class="counter">{{ formset.verbose_name|title }} #1</span>
+      </legend>
+      {% include form_tpl|default:"formhelper/includes/form.html" %}
+    </fieldset>
+  </div>
+  {% endfor %}
+</div>
+<script type="text/javascript" src="{{ STATIC_URL }}formhelper/js/formsets.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    var prefix = '{{ formset.prefix }}';
+    var verbose_name = '{{ formset.verbose_name|lower }}';
+    var rows = '.dynamic-form.{{ formset.prefix }}';
+    var updateInlineLabel = function(row) {
+        $(rows).find("legend span.counter").each(function(i) {
+            var count = i + 1;
+            $(this).html($(this).html().replace(/#(\d+)/g, '#'+count));
+        });
+    }
+    var a = verbose_name.match(/^[AEIOUaeiou]/) ? 'an' : 'a';
+    $(rows).formset({
+        prefix: prefix,
+        addText: "Add another "+verbose_name,
+        addTextInitial: "Add "+a+" "+verbose_name,
+        addTitle: "Click here to add another"+verbose_name,
+        addTitleInitial: "Click here to add "+a+" "+verbose_name,
+        deleteText: "Remove",
+        removed: updateInlineLabel,
+        added: updateInlineLabel
+    });
+    updateInlineLabel();
+  });
+</script>

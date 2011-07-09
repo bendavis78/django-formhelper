@@ -1,2 +1,3 @@
 include MANIFEST.in
 recursive-include formhelper/templates *
+recursive-include formhelper/static *
