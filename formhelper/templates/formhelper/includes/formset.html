@@ -11,18 +11,20 @@
   </div>
   {% endfor %}
 </div>
+{# TODO: There may be a more extensible way to do this js #}
 <script type="text/javascript" src="{{ STATIC_URL }}formhelper/js/formsets.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     var prefix = '{{ formset.prefix }}';
     var verbose_name = '{{ formset.verbose_name|lower }}';
     var rows = '.dynamic-form.{{ formset.prefix }}';
-    var updateInlineLabel = function(row) {
-        $(rows).find("legend span.counter").each(function(i) {
+    var updateInlineLabel = function(e) {
+        $(this).parent().find('.dynamic-form').find("legend span.counter").each(function(i) {
             var count = i + 1;
             $(this).html($(this).html().replace(/#(\d+)/g, '#'+count));
         });
     }
+    // use proper grammar
     var a = verbose_name.match(/^[AEIOUaeiou]/) ? 'an' : 'a';
     $(rows).formset({
         prefix: prefix,
@@ -31,9 +33,12 @@
         addTitle: "Click here to add another"+verbose_name,
         addTitleInitial: "Click here to add "+a+" "+verbose_name,
         deleteText: "Remove",
-        removed: updateInlineLabel,
-        added: updateInlineLabel
     });
-    updateInlineLabel();
+    $('.dynamic-form').bind('formsetadd', updateInlineLabel);
+    $('.dynamic-form').bind('formsetremove', updateInlineLabel);
+    // make sure forms that are already displayed are updated
+    $('.dynamic-form').not('.empty-form').each(function(){
+      updateInlineLabel(null);
+    });
   });
 </script>

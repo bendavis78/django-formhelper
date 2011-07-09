@@ -72,10 +72,10 @@
                     // Remove the parent form containing this button:
                     var row = $(this).parents("." + options.formCssClass);
                     row.remove();
-                    // If a post-delete callback was provided, call it with the deleted form:
-                    if (options.removed) {
-                        options.removed(row);
-                    }
+
+                    // triger remove event
+                    row.trigger('formsetremove');
+
                     // Update the TOTAL_FORMS form count.
                     var forms = $("." + options.formCssClass);
                     $("#id_" + options.prefix + "-TOTAL_FORMS").val(forms.length-1);
@@ -153,10 +153,10 @@
                 }
                 updateDeleteLinks(row);
                 updateAddAnotherText(row);
-                // If a post-add callback was supplied, call it with the added form:
-                if (options.added) {
-                    options.added(row);
-                }
+
+                // trigger formset added event
+                row.trigger('formsetadd');
+
                 return false;
             });
             updateDeleteLinks($(this));
