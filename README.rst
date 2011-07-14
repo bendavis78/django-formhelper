@@ -80,8 +80,12 @@ if the field has an error::
 
     <div class="first_name text-input required error">
 
-Templates
-=========
+Customizing
+===========
+You may override any template within your own app's template directory. Just make sure your app comes before the formhelper app in the ``INSTALLED_APPS`` setting. 
+
+The following is a list of templates available:
+
 ``formhelper/includes/form.html``
 
 ``formhelper/includes/form_row.html``
