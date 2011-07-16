@@ -3,4 +3,5 @@
   <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}</label>
   {{ field.errors }}
   {{ field }}
+  {% if field.help_text %}<p class="help-text">{{ field.help_text|safe }}</p>{% endif %}
 </div>
