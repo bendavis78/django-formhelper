@@ -1,5 +1,8 @@
 {% load formhelper %}
 {% error_list form %}
-{% for field in form %}
+{% for field in form.hidden_fields %}
+  {{ field }}
+{% endfor %}
+{% for field in form.visible_fields %}
   {% form_field field %}
 {% endfor %}
