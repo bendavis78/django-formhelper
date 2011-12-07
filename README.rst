@@ -85,11 +85,11 @@ if the field has an error::
 Formsets
 =========
 
-For easy formset support, complete with javascript (similar to django-admin), simply include the fieldset template::
+For easy formset support, complete with javascript (similar to django-admin), simply include the formset template::
 
     {% include "formhelper/includes/formset.html" %}
 
-This assumes that your fieldset is in a context variable called "formset".  If not, you can use the "with" tag as described above.
+This assumes that your formset is in a context variable called "formset".  If not, you can use the "with" tag as described above.
 
 
 Customizing
