@@ -80,6 +80,18 @@ if the field has an error::
 
     <div class="first_name text-input required error">
 
+
+
+Fieldsets
+=========
+
+For easy fieldset support, complete with javascript (similar to django-admin), simply include the fieldset template:
+
+    {% include "formhelper/includes/fieldset.html" %}
+
+This assumes that your fieldset is in a context variable called "fieldset".  If not, you can use the "with" tag as described above.
+
+
 Customizing
 ===========
 You may override any template within your own app's template directory. Just make sure your app comes before the formhelper app in the ``INSTALLED_APPS`` setting. 
@@ -91,5 +103,7 @@ The following is a list of templates available:
 ``formhelper/includes/form_row.html``
 
 ``formhelper/includes/field.html``
+
+``formhelper/includes/errorlist.html``
 
 ``formhelper/includes/errorlist.html``
