@@ -92,6 +92,22 @@ def field_value(field):
     except TypeError:
         return None
 
+@register.filter
+def formset_verbose_name(formset):
+    return formset.model._meta.verbose_name
+
+@register.filter
+def formset_verbose_name_plural(formset):
+    return formset.model._meta.verbose_name_plural
+
+
+@register.filter
+def is_empty_form(form):
+    """
+    Whether or not the form is part of a formset and is the "empty form".
+    """
+    return form.prefix.endswith('__prefix__')
+
 def _get_field(field, form, context):
     try:
         field = template.Variable(field).resolve(context)

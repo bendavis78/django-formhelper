@@ -1,27 +1,24 @@
+{% load formhelper %}
 <div class="formset">
   {{ formset.management_form }}
   {% for form in formset %}
-  <div class="dynamic-form {{ formset.prefix }}{% if form.empty_form %} empty-form{% endif %}{% if forloop.first %} first{% endif %}" id="{{ formset.prefix }}-{{ forloop.counter0 }}">
-    <fieldset>
-      <legend>
-        <span class="counter">{{ formset.verbose_name|title }} #1</span>
-      </legend>
-      {% include form_tpl|default:"formhelper/includes/form.html" %}
-    </fieldset>
-  </div>
+    {% include "formhelper/includes/formset_form.html" %}
   {% endfor %}
+  {% with form=formset.empty_form %}
+    {% include "formhelper/includes/formset_form.html" %}
+  {% endwith %}
 </div>
 {# TODO: There may be a more extensible way to do this js #}
 <script type="text/javascript" src="{{ STATIC_URL }}formhelper/js/formsets.js"></script>
 <script type="text/javascript">
   $(document).ready(function(){
     var prefix = '{{ formset.prefix }}';
-    var verbose_name = '{{ formset.verbose_name|lower }}';
-    var rows = '.dynamic-form.{{ formset.prefix }}';
+    var verbose_name = '{{ formset|formset_verbose_name|lower }}';
+    var rows = '.'+prefix+'-form';
     var updateInlineLabel = function(e) {
-        $(this).parent().find('.dynamic-form').find("legend span.counter").each(function(i) {
+        $(this).parent().find(rows).find("legend span.counter").each(function(i) {
             var count = i + 1;
-            $(this).html($(this).html().replace(/#(\d+)/g, '#'+count));
+            $(this).html($(this).html().replace(/#(\d+)?$/g, '#'+count));
         });
     }
     // use proper grammar
@@ -34,10 +31,10 @@
         addTitleInitial: "Click here to add "+a+" "+verbose_name,
         deleteText: "Remove",
     });
-    $('.dynamic-form').bind('formsetadd', updateInlineLabel);
-    $('.dynamic-form').bind('formsetremove', updateInlineLabel);
+    $(rows).bind('formsetadd', updateInlineLabel);
+    $(rows).bind('formsetremove', updateInlineLabel);
     // make sure forms that are already displayed are updated
-    $('.dynamic-form').not('.empty-form').each(function(){
+    $(rows).not('.empty-form').each(function(){
       updateInlineLabel(null);
     });
   });

@@ -9,7 +9,8 @@
  * All rights reserved.
  *
  * Spiced up with Code from Zain Memon's GSoC project 2009
- * and modified for Django by Jannis Leidel
+ * modified for Django by Jannis Leidel
+ * modified for django-formhelper by Ben Davis
  *
  * Licensed under the New BSD License
  * See: http://www.opensource.org/licenses/bsd-license.php
@@ -30,6 +31,11 @@
                 el.name = el.name.replace(id_regex, replacement);
             }
         };
+        var template = $("." + options.prefix + "-form.empty-form");
+        if (!template.length) {
+          throw new Error("Cannod find empty-form: ."+options.prefix+".empty-form");
+        }
+        template.hide();
         var totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS").attr("autocomplete", "off");
         var maxForms = $("#id_" + options.prefix + "-MAX_NUM_FORMS").attr("autocomplete", "off");
         // only show the add button if we are allowed to add more items,
@@ -98,7 +104,7 @@
             addButton.click(function() {
                 var totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS");
                 var nextIndex = parseInt(totalForms.val());
-                var template = $("." + options.prefix + ".empty-form");
+                var template = $("." + options.prefix + "-form.empty-form");
                 var row = template.clone(true);
                 row.removeClass(options.emptyCssClass)
                     .addClass(options.formCssClass)
@@ -142,6 +148,10 @@
                     // last child element of the form's container:
                     row.children(":last").append('<span><a class="' + options.deleteCssClass + '" href="javascript:void(0)">' + options.deleteText + "</a></span>");
                 }
+
+                // hide the delete box for dynamically-added forms
+                row.find('.field.DELETE').hide();
+
                 row.find("input,select,textarea,label,a").each(function() {
                     updateElementIndex(this, options.prefix, totalForms.val());
                 });

@@ -1,0 +1,10 @@
+{% load formhelper %}
+{# this template is intended for use within formhelper/includes/formset.html #}
+  <div class="{{ formset.prefix }}-form{% if form|is_empty_form %} empty-form{% endif %}{% if forloop.first %} first{% endif %}" id="{{ formset.prefix }}-{{ forloop.counter0 }}"{% if form|is_empty_form %} style="display: none"{% endif %}>
+    <fieldset>
+      <legend>
+        <span class="counter">{{ formset|formset_verbose_name|title }} #{{ forloop.counter }}</span>
+      </legend>
+      {% include form_tpl|default:"formhelper/includes/form.html" %}
+    </fieldset>
+  </div>
