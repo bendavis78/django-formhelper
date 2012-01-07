@@ -94,11 +94,19 @@ def field_value(field):
 
 @register.filter
 def formset_verbose_name(formset):
-    return formset.model._meta.verbose_name
+    if getattr(formset, 'verbose_name'):
+        return formset.verbose_name
+    if getattr(formset, 'model'):
+        return formset.model._meta.verbose_name
+    return ''
 
 @register.filter
 def formset_verbose_name_plural(formset):
-    return formset.model._meta.verbose_name_plural
+    if getattr(formset, 'verbose_name_plural'):
+        return formset.verbose_name_plural
+    if getattr(formset, 'model'):
+        return formset.model._meta.verbose_name_plural
+    return formset_verbose_name(formset) + 's'
 
 
 @register.filter
