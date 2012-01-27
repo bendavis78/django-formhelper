@@ -41,6 +41,8 @@ class FormFieldNode(template.Node):
             form = self.form.resolve(context)
         except template.VariableDoesNotExist:
             raise template.TemplateSyntaxError('a form must either be passed to form_field as first argument or must exist in context as "form"')
+        if not form:
+            raise template.TemplateSyntaxError('form is empty')
         tpl = get_template('formhelper/includes/field.html')
         field = _get_field(self.field, form, context)
         return tpl.render(template.Context({'form':form, 'field':field}))
