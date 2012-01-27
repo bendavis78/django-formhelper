@@ -96,9 +96,9 @@ def field_value(field):
 
 @register.filter
 def formset_verbose_name(formset):
-    if getattr(formset, 'verbose_name'):
+    if hasattr(formset, 'verbose_name'):
         return formset.verbose_name
-    if getattr(formset, 'model'):
+    if hasattr(formset, 'model'):
         return formset.model._meta.verbose_name
     return ''
 
