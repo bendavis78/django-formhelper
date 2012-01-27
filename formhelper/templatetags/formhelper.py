@@ -118,6 +118,15 @@ def is_empty_form(form):
     """
     return form.prefix.endswith('__prefix__')
 
+@register.simple_tag(takes_context=True)
+def formset_opts(context, formset):
+    import json
+    formset_opts = {}
+    opts = context.get('formset_opts')
+    if opts:
+        formset_opts = opts.get(formset.prefix, {})
+    return json.dumps(formset_opts)
+
 def _get_field(field, form, context):
     try:
         field = template.Variable(field).resolve(context)
