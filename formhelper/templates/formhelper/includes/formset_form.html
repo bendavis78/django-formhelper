@@ -5,6 +5,6 @@
       <legend>
         <span class="counter">{{ formset|formset_verbose_name|title }} #{{ forloop.counter }}</span>
       </legend>
-      {% include form_tpl|default:"formhelper/includes/form.html" %}
+      {% include formset_form_tpl|default:"formhelper/includes/form.html" %}
     </fieldset>
   </div>
