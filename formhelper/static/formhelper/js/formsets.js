@@ -74,12 +74,12 @@
             // Makes sure all delete links are assigned a click handler
             var updateDeleteLinks = function(row) {
                 // The delete button of each row triggers a bunch of other things
-                row.find("a." + options.deleteCssClass).click(function() {
+                var deleteCssSelector = options.deleteCssClass.replace(/ /g, '.');
+                row.find("a." + deleteCssSelector).click(function() {
                     // Remove the parent form containing this button:
                     var row = $(this).parents("." + options.formCssClass);
-                    row.remove();
 
-                    // triger remove event
+                    // triger formset removal
                     row.trigger('formsetremove');
 
                     // Update the TOTAL_FORMS form count.
@@ -163,6 +163,11 @@
                 }
                 updateDeleteLinks(row);
                 updateAddAnotherText(row);
+
+                // setup removal trigger
+                row.on('formsetremove', function(){
+                  $(this).remove();
+                });
 
                 // trigger formset added event
                 row.trigger('formsetadd');
