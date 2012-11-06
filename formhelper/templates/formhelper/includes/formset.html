@@ -20,7 +20,7 @@
             var count = i + 1;
             $(this).html($(this).html().replace(/#(\d+)?$/g, '#'+count));
         });
-    }
+    };
     // use proper grammar
     var a = verbose_name.match(/^[AEIOUaeiou]/) ? 'an' : 'a';
     var formsetOpts = {
@@ -29,9 +29,9 @@
         addTextInitial: "Add "+a+" "+verbose_name,
         addTitle: "Click here to add another"+verbose_name,
         addTitleInitial: "Click here to add "+a+" "+verbose_name,
-        deleteText: "Remove",
+        deleteText: "Remove"
     }
-    $.extend(formsetOpts, {% formset_opts formset %})
+    $.extend(formsetOpts, {% formset_opts formset %});
     $(rows).formset(formsetOpts);
     $(rows).bind('formsetadd', updateInlineLabel);
     $(rows).bind('formsetremove', updateInlineLabel);
