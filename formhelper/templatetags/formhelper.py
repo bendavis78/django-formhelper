@@ -45,7 +45,8 @@ class FormFieldNode(template.Node):
             raise template.TemplateSyntaxError('form is empty')
         tpl = get_template('formhelper/includes/field.html')
         field = _get_field(self.field, form, context)
-        return tpl.render(template.Context({'form':form, 'field':field}))
+        context.update({'form': form, 'field': field})
+        return tpl.render(context)
         
 @register.tag
 def form_field(parser, token):
