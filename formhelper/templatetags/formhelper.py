@@ -46,7 +46,9 @@ class FormFieldNode(template.Node):
         tpl = get_template('formhelper/includes/field.html')
         field = _get_field(self.field, form, context)
         context.update({'form': form, 'field': field})
-        return tpl.render(context)
+        html = tpl.render(context)
+        context.pop()
+        return html
         
 @register.tag
 def form_field(parser, token):
