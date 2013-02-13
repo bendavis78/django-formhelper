@@ -41,21 +41,22 @@
         // only show the add button if we are allowed to add more items,
         // note that max_num = None translates to a blank string.
         var showAddButton = maxForms.val() == '' || (maxForms.val()-totalForms.val()) > 0;
-        $(this).each(function(i) {
-            $(this).not("." + options.emptyCssClass).addClass(options.formCssClass);
+        var $this = $(this);
+        $this.each(function(i) {
+            $this.not("." + options.emptyCssClass).addClass(options.formCssClass);
         });
-        if ($(this).length && showAddButton) {
+        if ($this.length && showAddButton) {
             var addButton;
-            if ($(this).attr("tagName") == "TR") {
+            if ($this.attr("tagName") == "TR") {
                 // If forms are laid out as table rows, insert the
                 // "add" button in a new table row:
                 var numCols = this.eq(0).children().length;
-                $(this).parent().append('<tr class="' + options.addCssClass + '"><td colspan="' + numCols + '"><a id="formset_add_btn" href="javascript:void(0)" title="' + options.addTitle + '">' + options.addText + "</a></tr>");
-                addButton = $(this).parent().find("tr:last a");
+                $this.parent().append('<tr class="' + options.addCssClass + '"><td colspan="' + numCols + '"><a id="formset_add_btn" href="javascript:void(0)" title="' + options.addTitle + '">' + options.addText + "</a></tr>");
+                addButton = $this.parent().find("tr:last a");
             } else {
                 // Otherwise, insert it immediately after the last form:
-                $(this).filter(":last").after('<div class="' + options.addCssClass + '"><a id="formset_add_btn" href="javascript:void(0)" title="' + options.addTitle + '">' + options.addText + "</a></div>");
-                addButton = $(this).filter(":last").next().find("a");
+                $this.filter(":last").after('<div class="' + options.addCssClass + '"><a id="formset_add_btn" href="javascript:void(0)" title="' + options.addTitle + '">' + options.addText + "</a></div>");
+                addButton = $this.filter(":last").next().find("a");
             }
             var updateAddAnotherText = function(row) {
                 var totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS").val();
@@ -174,9 +175,9 @@
 
                 return false;
             });
-            updateDeleteLinks($(this));
-            updateAddAnotherText($(this));
-            $(this).filter("." + options.emptyCssClass).hide()
+            updateDeleteLinks($this);
+            updateAddAnotherText($this);
+            $this.filter("." + options.emptyCssClass).hide()
             
         }
         return this;

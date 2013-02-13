@@ -15,6 +15,7 @@
     var prefix = '{{ formset.prefix }}';
     var verbose_name = '{{ formset|formset_verbose_name|lower }}';
     var rows = '.'+prefix+'-form';
+    var $rows = $(rows);
     var updateInlineLabel = function(e) {
         $(this).parent().find(rows).find("legend span.counter").each(function(i) {
             var count = i + 1;
@@ -32,12 +33,13 @@
         deleteText: "Remove"
     }
     $.extend(formsetOpts, {% formset_opts formset %});
-    $(rows).formset(formsetOpts);
-    $(rows).bind('formsetadd', updateInlineLabel);
-    $(rows).bind('formsetremove', updateInlineLabel);
+    $rows.formset(formsetOpts);
+    $rows.bind('formsetadd', updateInlineLabel);
+    $rows.bind('formsetremove', updateInlineLabel);
     // make sure forms that are already displayed are updated
-    $(rows).not('.empty-form').each(function(){
+    $rows.not('.empty-form').each(function(){
       updateInlineLabel(null);
     });
+    $rows.trigger('formsetinit');
   });
 </script>
