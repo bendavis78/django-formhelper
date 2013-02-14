@@ -9,7 +9,7 @@ all_cap_re = re.compile('([a-z0-9])([A-Z])')
 
 @register.filter
 def field_error(field):
-    if field.errors:
+    if field and field.errors:
         err = field.errors[0]
         if err == unicode(field.field.error_messages.get('required')):
             err = '%s is required' % field.label
@@ -17,6 +17,17 @@ def field_error(field):
             err = '%s: %s' % (field.label, err)
         return err
     return ''
+
+@register.filter
+def error_has_is_required(field):
+    err = field_error(field)
+    return ' is required' in err
+
+@register.filter
+def has_is_required_errors(form):
+    if form.errors:
+        return any(error_has_is_required(form.__getitem__(f)) for f in form.errors.keys())
+    return False
 
 @register.filter
 def class_names(field):
@@ -87,8 +98,12 @@ def form_row(parser, token):
     return FormRowNode(args)
 
 @register.inclusion_tag('formhelper/includes/errorlist.html')
-def error_list(form, only=''):
-    return {'form':form, 'only':only}
+def error_list(form, only='', suppress_is_required=0):
+    return {
+        'form':form,
+        'only':only,
+        'suppress_is_required':suppress_is_required
+    }
 
 @register.filter
 def field_value(field):

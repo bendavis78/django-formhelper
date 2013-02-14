@@ -6,9 +6,14 @@
   <li>{{ err }}</li>
   {% endfor %}
   {% endif %}
+  {% if suppress_is_required and form|has_is_required_errors %}
+  <li>Complete all required fields.</li>
+  {% endif %}
   {% if not only == "non_field" %}
   {% for field in form %}
+  {% if not suppress_is_required or not field|error_has_is_required %}
   {% if field.errors %}<li>{{ field|field_error }}</li>{% endif %}
+  {% endif %}
   {% endfor %}
   {% endif %}
 </ul>
