@@ -74,7 +74,10 @@ class FormRowNode(template.Node):
         else:
             raise template.TemplateSyntaxError('a form must either be passed to form_row as first argument or must exist in context as "form"')
         fields = [_get_field(f, form, context) for f in field_list]
-        return tpl.render(template.Context({'form': form, 'fields': fields}))
+        context.update({'form': form, 'fields': fields})
+        html = tpl.render(context)
+        context.pop()
+        return html
         
 @register.tag
 def form_row(parser, token):
