@@ -22,5 +22,5 @@ setup(
     ],
     packages = find_packages(),
     include_package_data = True,
-    log_description=open(readme).read()
+    long_description=open(readme).read()
 )
