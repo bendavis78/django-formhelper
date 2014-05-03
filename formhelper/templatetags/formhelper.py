@@ -88,7 +88,7 @@ class FormRowNode(template.Node):
     def render(self, context):
         tpl = get_template('formhelper/includes/form_row.html')
         if context.get(self.args[0]) and isinstance(context[self.args[0]],
-                                                    forms.Form):
+                                                    forms.BaseForm):
             form = context[self.args[0]]
             field_list = self.args[1:]
         elif context.get('form'):
