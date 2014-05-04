@@ -62,7 +62,10 @@ class FormFieldNode(template.Node):
                 'or must exist in context as "form"')
         if not form:
             raise template.TemplateSyntaxError('form is empty')
-        tpl = get_template('formhelper/includes/field.html')
+        if context.get('field_template'):
+            tpl = get_template(context['field_template'])
+        else:
+            tpl = get_template('formhelper/includes/field.html')
         field = _get_field(self.field, form, context)
         context.update({'form': form, 'field': field})
         html = tpl.render(context)
