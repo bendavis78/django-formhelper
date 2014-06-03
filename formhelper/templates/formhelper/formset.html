@@ -2,10 +2,10 @@
 <div class="formset">
   {{ formset.management_form }}
   {% for form in formset %}
-    {% include "formhelper/includes/formset_form.html" %}
+    {% include "formhelper/formset_form.html" %}
   {% endfor %}
   {% with form=formset.empty_form %}
-    {% include "formhelper/includes/formset_form.html" %}
+    {% include "formhelper/formset_form.html" %}
   {% endwith %}
 </div>
 {# TODO: There may be a more extensible way to do this js #}

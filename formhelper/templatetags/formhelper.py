@@ -1,37 +1,155 @@
+from __future__ import unicode_literals
+
+import re
+
+from django import forms
+from django.forms.forms import BoundField
 from django import template
 from django.template.loader import get_template
-from django import forms
-import re
 
 register = template.Library()
 first_cap_re = re.compile('(.)([A-Z][a-z]+)')
 all_cap_re = re.compile('([a-z0-9])([A-Z])')
 
-@register.filter
-def field_error(field):
-    if field and field.errors:
-        err = field.errors[0]
-        if err == unicode(field.field.error_messages.get('required')):
-            err = '%s is required' % field.label
+
+def parse_tokens(parser, tokens):
+    """
+    Shortcut for parsing args/kwargs from a list of tokens
+    """
+    args = []
+    kwargs = []
+
+    for token in tokens:
+        if '=' in token:
+            key, token = token.split('=')
+            kwargs.append((key, parser.compile_filter(token)))
         else:
-            err = '%s: %s' % (field.label, err)
-        return err
-    return ''
+            args.append(parser.compile_filter(token))
 
-@register.filter
-def error_has_is_required(field):
-    err = field_error(field)
-    return ' is required' in err
+    return args, dict(kwargs)
 
-@register.filter
-def has_is_required_errors(form):
-    if form.errors:
-        return any(error_has_is_required(form.__getitem__(f)) for f in form.errors.keys())
-    return False
+
+class FieldContainerNode(template.Node):
+    """
+    Represents either a {% form_field %} or a {% form_group %}
+    """
+    def __init__(self, tag_name, *args, **kwargs):
+        self.tag_name = tag_name
+        self.template = 'formhelper/{0}.html'.format(tag_name)
+        self.args = args
+        self.kwargs = kwargs
+
+    def get_form(self):
+        if not hasattr(self, '_form'):
+            form = None
+            arg = self.args[0].resolve(self.context)
+            if isinstance(arg, forms.Form):
+                form = arg
+                self.args = self.args[1:]
+            if not form:
+                form = self.context.get('form')
+            if not form:
+                raise template.TemplateSyntaxError(
+                    "A form instance must be provided as the first argument "
+                    "to {{% {0} %}}, or else it must exist in the context as "
+                    "'form'.".format(self.tag_name))
+            self._form = form
+
+        return self._form
+
+    def get_fields(self, form):
+        fields = []
+        for arg in self.args:
+            field = arg.resolve(self.context)
+            if isinstance(field, BoundField):
+                field = field.name
+            elif isinstance(field, forms.Field):
+                raise template.TemplateSyntaxError(
+                    "'{0!r}' is not a bound field'".format(field))
+            try:
+                field = form[field]
+            except KeyError:
+                raise template.TemplateSyntaxError(
+                    "'{0}' is not a field in {1!r}".format(field, form))
+            fields.append(field)
+        return fields
+
+    def render(self, context):
+        self.context = context
+        with context.push():
+            tpl = get_template(self.template)
+            form = self.get_form()
+            for k, v in self.kwargs.iteritems():
+                context[k] = v.resolve(context)
+            context['form'] = form
+            context['fields'] = self.get_fields(form)
+            html = tpl.render(context)
+        return html
+
+
+def parse_field_tokens(parser, token):
+    tokens = token.split_contents()
+    name = tokens[0]
+    if not len(tokens) > 1:
+        raise template.TemplateSyntaxError(
+            "{0} takes at least one argument".format(name))
+    args, kwargs = parse_tokens(parser, tokens[1:])
+    if not args:
+        raise template.TemplateSyntaxError(
+            "Missing position argument for field name")
+    return name, args, kwargs
+
+
+@register.tag
+def field(parser, token):
+    """
+    Renders the given field name using "formhelper/field.html". The basic
+    syntax is:
+
+        {% field form "field_name"  %}
+
+    If a form object exists in the context as "form", it can be omitted from
+    the arguments. For example:
+
+        {% with signup_form as form %}
+            {% field "first_name" %}
+            {% field "last_name" %}
+        {% endwith %}
+
+    Keyword arguments will be passed directly to the template context:
+
+        {% field "categories" extra_help="(check all that apply)" %}
+
+    """
+    name, args, kwargs = parse_field_tokens(parser, token)
+    if len(args) > 2:
+        raise template.TemplateSyntaxError(
+            "{% field %} takes no more than two positional arguments")
+    return FieldContainerNode(name, *args, **kwargs)
+
+
+@register.tag
+def form_group(parser, token):
+    """
+    {% form_group %} works the same as {% field %}, but takes multiple fields
+    as positional arguments. The group renders using a different template,
+    "formhelper/form_group.html", which in turn calls {% field %} to render
+    the individual fields. Example:
+
+        {% form_group "city" "state" "zip" %}
+
+    """
+    name, args, kwargs = parse_field_tokens(parser, token)
+    return FieldContainerNode(name, *args, **kwargs)
+
 
 @register.filter
 def class_names(field):
-    class_names = [field.name.replace('_','-')]
+    """
+    Returns a set of class names common to a field, such as "required" for
+    required fields, and "error" for fields with an error.
+    """
+    class_names = [field.name.replace('_', '-')]
     widget_class = pyclass_to_cssclass(field.field.widget.__class__.__name__)
     class_names.append(widget_class)
     if field.field.required:
@@ -40,73 +158,56 @@ def class_names(field):
         class_names.append('error')
     return ' '.join(class_names)
 
-class FormFieldNode(template.Node):
-    def __init__(self, form, field):
-        if not form:
-            form = 'form'
-        self.form = template.Variable(form)
-        self.field = field
 
-    def render(self, context):
-        try:
-            form = self.form.resolve(context)
-        except template.VariableDoesNotExist:
-            raise template.TemplateSyntaxError('a form must either be passed to form_field as first argument or must exist in context as "form"')
-        if not form:
-            raise template.TemplateSyntaxError('form is empty')
-        tpl = get_template('formhelper/includes/field.html')
-        field = _get_field(self.field, form, context)
-        context.update({'form': form, 'field': field})
-        html = tpl.render(context)
-        context.pop()
-        return html
-        
-@register.tag
-def form_field(parser, token):
-    args = token.split_contents()[1:]
-    if not args:
-        raise template.TemplateSyntaxError("form_field takes at least one argument")
-    if len(args) == 1:
-        return FormFieldNode(None, args[0])
-    return FormFieldNode(args[0], args[1])
-
-class FormRowNode(template.Node):
-    def __init__(self, args):
-        self.args = args
-
-    def render(self, context):
-        tpl = get_template('formhelper/includes/form_row.html')
-        if context.get(self.args[0]) and isinstance(context[self.args[0]], forms.Form):
-            form = context[self.args[0]]
-            field_list = self.args[1:]
-        elif context.get('form'):
-            form = context['form']
-            field_list = self.args
-        else:
-            raise template.TemplateSyntaxError('a form must either be passed to form_row as first argument or must exist in context as "form"')
-        fields = [_get_field(f, form, context) for f in field_list]
-        context.update({'form': form, 'fields': fields})
-        html = tpl.render(context)
-        context.pop()
-        return html
-        
-@register.tag
-def form_row(parser, token):
-    args = token.split_contents()[1:]
-    if not args:
-        raise template.TemplateSyntaxError("form_row takes at least one argument")
-    return FormRowNode(args)
-
-@register.inclusion_tag('formhelper/includes/errorlist.html')
+@register.inclusion_tag('formhelper/error_list.html')
 def error_list(form, only='', suppress_is_required=0):
+    """
+    Renders a flat error list showing only as much information as is needed.
+    If a field has multiple errors, only the first error is shown. With no
+    arguments both non-field and field errors are shown.
+
+    If supress_empty=True, field errors containing the string "is required" are
+    ommitted, and a single error is shown saying "Complete all required fields"
+
+        {% error_list suppress_is_required=True %}
+
+    Pass only=field or only=non_field to show only fields of that type.
+
+        {% error_list only=non_field %}
+    """
+    field_errors = []
+    required_field_errors = []
+
+    if not only == 'field':
+        non_field_errors = form.non_field_errors
+
+    if not only == 'non_field':
+        for name, field in form.fields.iteritems():
+            if not field.error_messages:
+                continue
+            key = field.error_messages.keys()[0]
+            err = field.error_messages[key]
+            if key == 'required':
+                required_field_errors.append(field)
+                if suppress_is_required:
+                    continue
+            field_errors.append((field, err))
+
     return {
-        'form':form,
-        'only':only,
-        'suppress_is_required':suppress_is_required
+        'form': form,
+        'only': only,
+        'field_errors': field_errors,
+        'required_field_errors': required_field_errors,
+        'non_field_errors': non_field_errors,
+        'suppress_is_required': suppress_is_required
     }
+
 
 @register.filter
 def field_value(field):
+    """
+    Returns the coerced value of a bound field
+    """
     value = field.value()
     if value is None:
         return None
@@ -115,16 +216,24 @@ def field_value(field):
     except TypeError:
         return None
 
+
 @register.filter
 def formset_verbose_name(formset):
+    """
+    Returns the verbose name for the given formset
+    """
     if hasattr(formset, 'verbose_name'):
         return formset.verbose_name
     if hasattr(formset, 'model'):
         return formset.model._meta.verbose_name
     return ''
 
+
 @register.filter
 def formset_verbose_name_plural(formset):
+    """
+    Returns the plural verbose name for the given formset
+    """
     if getattr(formset, 'verbose_name_plural'):
         return formset.verbose_name_plural
     if getattr(formset, 'model'):
@@ -135,12 +244,16 @@ def formset_verbose_name_plural(formset):
 @register.filter
 def is_empty_form(form):
     """
-    Whether or not the form is part of a formset and is the "empty form".
+    Returns True if the form is part of a formset and is the "empty form".
     """
     return form.prefix.endswith('__prefix__')
 
+
 @register.simple_tag(takes_context=True)
 def formset_opts(context, formset):
+    """
+    Returns a json object for use in a dynamic formset
+    """
     import json
     formset_opts = {}
     opts = context.get('formset_opts')
@@ -148,16 +261,10 @@ def formset_opts(context, formset):
         formset_opts = opts.get(formset.prefix, {})
     return json.dumps(formset_opts)
 
-def _get_field(field, form, context):
-    try:
-        field = template.Variable(field).resolve(context)
-    except template.VariableDoesNotExist:
-        pass
-    if isinstance(field, basestring):
-        field = form[field]
-    return field
 
 def pyclass_to_cssclass(name):
+    """
+    Converts a ExampleClassName toe example-class-name
+    """
     s1 = first_cap_re.sub(r'\1-\2', name)
     return all_cap_re.sub(r'\1-\2', s1).lower()
-

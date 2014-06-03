@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='formhelper', 
-    version='0.1',
+    name='formhelper',
+    version='0.2',
     author='Ben Davis',
     author_email='bendavis78@gmail.com',
     url='http://github.com/bendavis78',
-    description='Django FormHelper is a collection of templates and templatetags to ease the pain in building out web forms',
+    description=('Django FormHelper is a collection of templates and '
+                 'templatetags to ease the pain in building out web forms'),
     keywords='django forms',
     classifiers = [
         'Development Status :: 4 - Beta',

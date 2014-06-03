@@ -1,6 +1,6 @@
 {% load formhelper %}
-<div class="form-row">
+<div class="form-group">
   {% for field in fields %}
-  {% form_field form field %}
+  {% include "formhelper/field.html" %}
   {% endfor %}
 </div>
