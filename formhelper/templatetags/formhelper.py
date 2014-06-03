@@ -79,10 +79,12 @@ class FieldContainerNode(template.Node):
         with context.push():
             tpl = get_template(self.template)
             form = self.get_form()
+            fields = self.get_fields(form)
             for k, v in self.kwargs.iteritems():
                 context[k] = v.resolve(context)
             context['form'] = form
-            context['fields'] = self.get_fields(form)
+            context['fields'] = fields
+            context['field'] = fields[0]
             html = tpl.render(context)
         return html
 
