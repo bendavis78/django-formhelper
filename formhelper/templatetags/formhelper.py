@@ -270,3 +270,13 @@ def pyclass_to_cssclass(name):
     """
     s1 = first_cap_re.sub(r'\1-\2', name)
     return all_cap_re.sub(r'\1-\2', s1).lower()
+
+
+@register.filter
+def error_type(field):
+    """
+    Returns the error message key for the first error in the field
+    """
+    if field.error_messages:
+        return field.error_messages.keys()[0]
+    return ''
