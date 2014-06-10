@@ -184,12 +184,11 @@ def error_list(form, only='', suppress_is_required=0):
         non_field_errors = form.non_field_errors
 
     if not only == 'non_field':
-        for name, field in form.fields.iteritems():
-            if not field.error_messages:
+        for field in form:
+            if not field.errors:
                 continue
-            key = field.error_messages.keys()[0]
-            err = field.error_messages[key]
-            if key == 'required':
+            err = field.errors[0]
+            if err == field.field.error_messages['required']:
                 required_field_errors.append(field)
                 if suppress_is_required:
                     continue
@@ -277,6 +276,7 @@ def error_type(field):
     """
     Returns the error message key for the first error in the field
     """
-    if field.error_messages:
-        return field.error_messages.keys()[0]
+    if field.errors:
+        err = field.errors[0]
+        return next(k for k, v in field.field.error_messages if v == err)
     return ''
