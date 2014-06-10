@@ -4,7 +4,7 @@
 {% for err in non_field_errors %}
   <li class="non-field-error">{{ err }}</li>
 {% endfor %}
-{% if suppress_is_required and has_is_required_error %}
+{% if suppress_is_required and required_field_errors %}
   <li class="required-fields-error">Please complete all required fields.</li>
 {% endif %}
 {% for field, error in field_errors %}

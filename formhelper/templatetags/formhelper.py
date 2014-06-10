@@ -278,5 +278,6 @@ def error_type(field):
     """
     if field.errors:
         err = field.errors[0]
-        return next(k for k, v in field.field.error_messages if v == err)
+        messages = field.field.error_messages
+        return next(k for k, v in messages.items() if v == err)
     return ''
