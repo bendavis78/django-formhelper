@@ -80,7 +80,7 @@ class FieldContainerNode(template.Node):
             tpl = get_template(self.template)
             form = self.get_form()
             fields = self.get_fields(form)
-            for k, v in self.kwargs.iteritems():
+            for k, v in self.kwargs.items():
                 context[k] = v.resolve(context)
             context['form'] = form
             context['fields'] = fields
