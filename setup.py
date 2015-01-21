@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='formhelper',
+    name='django-formhelper',
     version='0.2',
     author='Ben Davis',
     author_email='bendavis78@gmail.com',
