@@ -173,9 +173,9 @@ def error_list(form, only='', suppress_is_required=0):
 
         {% error_list suppress_is_required=True %}
 
-    Pass only=field or only=non_field to show only fields of that type.
+    Pass `only="field"` or `only="non_field" to show only fields of that type.
 
-        {% error_list only=non_field %}
+        {% error_list only="non_field" %}
     """
     field_errors = []
     required_field_errors = []
@@ -184,12 +184,11 @@ def error_list(form, only='', suppress_is_required=0):
         non_field_errors = form.non_field_errors
 
     if not only == 'non_field':
-        for name, field in form.fields.iteritems():
-            if not field.error_messages:
+        for field in form:
+            if not field.errors:
                 continue
-            key = field.error_messages.keys()[0]
-            err = field.error_messages[key]
-            if key == 'required':
+            err = field.errors[0]
+            if err == field.field.error_messages['required']:
                 required_field_errors.append(field)
                 if suppress_is_required:
                     continue
@@ -250,6 +249,15 @@ def is_empty_form(form):
     """
     return form.prefix.endswith('__prefix__')
 
+
+@register.filter
+def required_error(field):
+    """
+    Evaluate to true if the filtered field has a "this field is required"
+    error.
+    """
+    msg = field.field.error_messages['required']
+    return any(e for e in field.errors if e == msg)
 
 @register.simple_tag(takes_context=True)
 def formset_opts(context, formset):

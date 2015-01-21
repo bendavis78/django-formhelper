@@ -2,7 +2,9 @@
 <div class="field {{ field|class_names }}">
   <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required">*</span>{% endif %}</label>
   {% if not hide_field_errors %}
-  <span class="error">{{ field.errors.0 }}</span>
+  {% if not suppress_is_required and field|required_error %}
+  <span class="error">{{ field.errors.0 }} * {{ field|required_error }}</span>
+  {% endif %}
   {% endif %}
   {{ field }}
   {% if field.help_text %}<p class="help-text">{{ field.help_text|safe }}</p>{% endif %}
