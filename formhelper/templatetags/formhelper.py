@@ -80,7 +80,7 @@ class FieldContainerNode(template.Node):
             tpl = get_template(self.template)
             form = self.get_form()
             fields = self.get_fields(form)
-            for k, v in self.kwargs.iteritems():
+            for k, v in self.kwargs.items():
                 context[k] = v.resolve(context)
             context['form'] = form
             context['fields'] = fields
@@ -278,3 +278,15 @@ def pyclass_to_cssclass(name):
     """
     s1 = first_cap_re.sub(r'\1-\2', name)
     return all_cap_re.sub(r'\1-\2', s1).lower()
+
+
+@register.filter
+def error_type(field):
+    """
+    Returns the error message key for the first error in the field
+    """
+    if field.errors:
+        err = field.errors[0]
+        messages = field.field.error_messages
+        return next(k for k, v in messages.items() if v == err)
+    return ''
