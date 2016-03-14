@@ -5,7 +5,7 @@ setup(
     version='0.2',
     author='Ben Davis',
     author_email='bendavis78@gmail.com',
-    url='http://github.com/bendavis78',
+    url='https://github.com/bendavis78/django-formhelper',
     description=('Django FormHelper is a collection of templates and '
                  'templatetags to ease the pain in building out web forms'),
     keywords='django forms',
